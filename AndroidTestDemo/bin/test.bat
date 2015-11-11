@@ -1,0 +1,1 @@
+java -jar automator-log-converter-1.5.0.jar testlog.txt

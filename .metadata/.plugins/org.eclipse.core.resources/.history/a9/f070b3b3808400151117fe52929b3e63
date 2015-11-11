@@ -1,0 +1,6 @@
+import com.android.uiautomator.testrunner.UiAutomatorTestCase;
+
+
+class AndroidTestDemo extends UiAutomatorTestCase {
+
+}

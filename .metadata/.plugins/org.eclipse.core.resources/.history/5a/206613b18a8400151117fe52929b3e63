@@ -1,0 +1,21 @@
+package com.android.uitest.AndroidTestDemo;
+import android.widget.ListView;
+import android.widget.Switch;
+ 
+import com.android.uiautomator.core.UiObject;
+import com.android.uiautomator.core.UiObjectNotFoundException;
+import com.android.uiautomator.core.UiScrollable;
+import com.android.uiautomator.core.UiSelector;
+import com.android.uiautomator.testrunner.UiAutomatorTestCase;
+ 
+public class AndroidTestDemo extends UiAutomatorTestCase {
+ 
+    // TODO 重要注意： 在运行该测试代码的时候 需要先把手机语言环境设置为英文。
+    public void testDemo() throws UiObjectNotFoundException {
+ 
+        // 模拟 HOME 键点击事件
+        getUiDevice().pressHome();
+ 
+       
+    }
+}
