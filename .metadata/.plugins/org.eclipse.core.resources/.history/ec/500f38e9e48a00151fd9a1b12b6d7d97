@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ExecuteAndroidTest</string>
+    <string name="action_settings">Settings</string>
+    <string name="RunMode">运行模式</string>
+	<string-array name="RunMode_value">
+  		<item>顺序</item>
+  		<item>随机</item>
+ 	</string-array>
+    <string name="RunTime">运行次数</string>
+    <string-array name="RunTime_value">
+  		<item>单次</item>
+  		<item>循环</item>
+ 	</string-array>
+    <string name="btnStart">开始运行</string>
+    <string name="selectAll">全选/取消</string>
+    <string name="deleteLog">清除日志</string>
+</resources>

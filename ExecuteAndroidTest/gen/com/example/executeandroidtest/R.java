@@ -8,6 +8,10 @@
 package com.example.executeandroidtest;
 
 public final class R {
+    public static final class array {
+        public static final int RunMode_array=0x7f060000;
+        public static final int RunTime_array=0x7f060001;
+    }
     public static final class attr {
     }
     public static final class dimen {
@@ -25,18 +29,34 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f080000;
+        public static final int TableLayout00=0x7f090000;
+        public static final int TableLayout01=0x7f090009;
+        public static final int TableRow00=0x7f090001;
+        public static final int TableRow01=0x7f090004;
+        public static final int TableRow02=0x7f090007;
+        public static final int action_settings=0x7f09000a;
+        public static final int btnStart=0x7f090008;
+        public static final int deleteLog=0x7f090006;
+        public static final int selectAll=0x7f090005;
+        public static final int spinner_RunMode=0x7f090002;
+        public static final int spinner_RunTime=0x7f090003;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
     }
     public static final class menu {
-        public static final int main=0x7f070000;
+        public static final int main=0x7f080000;
     }
     public static final class string {
-        public static final int action_settings=0x7f050002;
+        public static final int RunMode=0x7f050002;
+        public static final int RunMode_prompt=0x7f050003;
+        public static final int RunTime=0x7f050004;
+        public static final int RunTime_prompt=0x7f050005;
+        public static final int action_settings=0x7f050001;
         public static final int app_name=0x7f050000;
-        public static final int hello_world=0x7f050001;
+        public static final int btnStart=0x7f050006;
+        public static final int deleteLog=0x7f050008;
+        public static final int selectAll=0x7f050007;
     }
     public static final class style {
         /** 
@@ -60,10 +80,10 @@ public final class R {
     
  API 14 theme customizations can go here. 
          */
-        public static final int AppBaseTheme=0x7f060000;
+        public static final int AppBaseTheme=0x7f070000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f060001;
+        public static final int AppTheme=0x7f070001;
     }
 }
