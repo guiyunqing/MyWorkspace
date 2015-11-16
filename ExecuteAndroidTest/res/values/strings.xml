@@ -14,7 +14,7 @@
   		<item>单次</item>
   		<item>循环</item>
  	</string-array>
-    <string name="btnStart">开始运行</string>
+    <string name="startButton">开始运行</string>
     <string name="selectAll">全选/取消</string>
     <string name="deleteLog">清除日志</string>
 </resources>
