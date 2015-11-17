@@ -16,5 +16,5 @@
  	</string-array>
     <string name="startButton">开始运行</string>
     <string name="selectAll">全选/取消</string>
-    <string name="deleteLog">清除日志</string>
+    <string name="reserveLog">保留日志</string>
 </resources>

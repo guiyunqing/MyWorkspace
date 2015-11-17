@@ -35,7 +35,7 @@ public final class R {
         public static final int TableRow01=0x7f090004;
         public static final int TableRow02=0x7f090007;
         public static final int action_settings=0x7f09000a;
-        public static final int deleteLog=0x7f090006;
+        public static final int reserveLog=0x7f090006;
         public static final int selectAll=0x7f090005;
         public static final int spinner_RunMode=0x7f090002;
         public static final int spinner_RunTime=0x7f090003;
@@ -54,7 +54,7 @@ public final class R {
         public static final int RunTime_prompt=0x7f050005;
         public static final int action_settings=0x7f050001;
         public static final int app_name=0x7f050000;
-        public static final int deleteLog=0x7f050008;
+        public static final int reserveLog=0x7f050008;
         public static final int selectAll=0x7f050007;
         public static final int startButton=0x7f050006;
     }

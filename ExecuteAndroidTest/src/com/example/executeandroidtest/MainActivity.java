@@ -4,14 +4,19 @@ package com.example.executeandroidtest;
 import java.util.LinkedList;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -27,9 +32,18 @@ public class MainActivity extends Activity {
 	public static boolean autoRunFlagChecked = false;	//是否取得过自动执行标志位
 	public static boolean autoRunFlag = false;	//自动执行脚本
 	//总体超时时间
-	public String timeoutLabel = "totalTimeout";
+	public String timeoutLabel = "TotalTimeout";
 	public static boolean timeoutChecked = false;
 	public static int timeout = 900;
+	public static boolean startButtonRunning = false;
+	
+	// **Checked标志位在读取配置文件时使用
+	public String reserveLogLabel = "ReserveLog";
+	public String runModeLabel = "RunMode";
+	public String runTimeLabel = "RunTime";
+	public static boolean reserveLogChecked = false;
+	public static boolean runModeChecked = false;
+	public static boolean runTimeChecked = false;
 	
 	//测试路径
 	public static final String TestDirPath = "/data/executeAndroidTest/";
@@ -39,11 +53,20 @@ public class MainActivity extends Activity {
 	
 	public static FileManager fileManager = new FileManager();
 	
+	public static LinkedList<Integer> toRunTCidList = new LinkedList<Integer>();
 	public static LinkedList<TestcaseInfo> testCaseList = new LinkedList<TestcaseInfo>();
+	public static LinkedList<TestcaseInfo> testCaseToRun = new LinkedList<TestcaseInfo>();
+	
+	public static LinkedList<TextView> tcViewList =  new LinkedList<TextView>();
+	public static LinkedList<CheckBox> tcCheckboxList =  new LinkedList<CheckBox>();
 	
 	private Button startButton;
-	private CheckBox selectAll, deleteLog;
+	private CheckBox selectAll, reserveLog;
 	private Spinner spinner_RunMode, spinner_RunTime;
+
+	boolean reserveLogFlag = false;	//是否保留日志
+	public static int runMode=0;	//默认顺序执行	0：顺序	1：随机
+	public static int runTime=0;	//默认执行一次	0：一次	1：循环
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +88,12 @@ public class MainActivity extends Activity {
         spinner_RunTime.setAdapter(adapter_1);
         
         selectAll = (CheckBox)findViewById(R.id.selectAll);
-        deleteLog = (CheckBox)findViewById(R.id.deleteLog);
+        reserveLog = (CheckBox)findViewById(R.id.reserveLog);
         startButton = (Button)findViewById(R.id.startButton);
+        
+        RunningListener listener = new RunningListener();
+        startButton.setOnClickListener(listener);
+        selectAll.setOnCheckedChangeListener(listener);
         
         //读取TestcaseConfig.cfg，得到测试例列表
         if(!LoadConfigFlie(TestDirPath + "TestcaseConfig.cfg")) {
@@ -74,8 +101,21 @@ public class MainActivity extends Activity {
         	finish();
         	return;
         }
+        
+        //自动运行，界面不可设置
+        if(autoRunFlag){
+        	selectAll.setEnabled(false);
+        	reserveLog.setChecked(reserveLogFlag);
+        	reserveLog.setEnabled(false);
+        	spinner_RunMode.setSelection(runMode);
+        	spinner_RunTime.setSelection(runTime);
+        	spinner_RunMode.setEnabled(false);
+        	spinner_RunTime.setEnabled(false);
+        }
         	
         //根据测试列表，初始化TableLayout01
+        tcViewList.clear();
+        tcCheckboxList.clear();
         TableLayout testcaseLayout = (TableLayout)findViewById(R.id.TableLayout01);
         for(int i=0; i < testCaseList.size(); i++){
         	TableRow testcaseRow = new TableRow(this);
@@ -100,8 +140,17 @@ public class MainActivity extends Activity {
 			
 			TextView testcaseStatus = new TextView(this);
 			testcaseStatus.setText("Waiting");
-			testcaseStatus.setGravity(Gravity.RIGHT);
+			testcaseStatus.setGravity(Gravity.END);
 			testcaseRow.addView(testcaseStatus);
+			tcViewList.add(testcaseStatus);
+			tcCheckboxList.add(caseSelected);
+        }
+        
+        if(autoRunFlag){
+        	startButton.setText("点击结束运行");
+        	startButtonRunning=true;
+        	Log.v(TAG, "Auto running testcases now......");
+			runCaseManage();
         }
     }
 
@@ -158,6 +207,26 @@ public class MainActivity extends Activity {
 				Log.v(TAG, "LoadConfigFlie totle timeout = " + resultStr);
 				timeout = Integer.parseInt(resultStr);
 				timeoutChecked = true;
+			}else if( !reserveLogChecked && fileline[i].indexOf(reserveLogLabel) >= 0)
+			{
+				String resultStr = fileline[i].substring(fileline[i].indexOf("=")+1,fileline[i].indexOf("]")).trim();
+				Log.v(TAG, "LoadConfigFlie reserve Log = " + resultStr);
+				int result = Integer.parseInt(resultStr);
+				if ( 0 != result ) reserveLogFlag = true;
+				else reserveLogFlag = false;
+				reserveLogChecked = true;
+			}else if( !runModeChecked && fileline[i].indexOf(runModeLabel) >= 0)
+			{
+				String resultStr = fileline[i].substring(fileline[i].indexOf("=")+1,fileline[i].indexOf("]")).trim();
+				Log.v(TAG, "LoadConfigFlie runMode = " + resultStr);
+				runMode = Integer.parseInt(resultStr);
+				runModeChecked = true;
+			}else if( !runTimeChecked && fileline[i].indexOf(runTimeLabel) >= 0)
+			{
+				String resultStr = fileline[i].substring(fileline[i].indexOf("=")+1,fileline[i].indexOf("]")).trim();
+				Log.v(TAG, "LoadConfigFlie runTime = " + resultStr);
+				runTime = Integer.parseInt(resultStr);
+				runTimeChecked = true;
 			}else
 			{
 				TestcaseInfo tmp = new TestcaseInfo();
@@ -188,12 +257,77 @@ public class MainActivity extends Activity {
 			}
 		}
 		Log.v(TAG, "LoadConfigFlie leave");
-		if(!autoRunFlagChecked || !timeoutChecked )
+		if(!autoRunFlagChecked || !timeoutChecked || !reserveLogChecked || !runModeChecked || !runTimeChecked)
 		{
 			Log.e(TAG, "LoadConfigFlie get fail.");
 			return false;
 		}else return true;
 	}
+
+	public static void runCaseManage(){
+		
+	}
+	
+	class RunningListener implements OnClickListener, OnCheckedChangeListener{
+
+		@Override
+		public void onClick(View v) {
+			if (v.getId() == R.id.startButton){
+				if(!startButtonRunning){
+					//取得当前各参数
+					reserveLogFlag = findViewById(R.id.reserveLog).isEnabled();
+					runMode = spinner_RunMode.getSelectedItemPosition();
+					runTime = spinner_RunTime.getSelectedItemPosition();
+				
+					//取得测试例列表
+					toRunTCidList.clear();
+					for(int i=0;i<tcCheckboxList.size();i++){
+						if (tcCheckboxList.get(i).isChecked()){
+							testCaseList.get(i).SelectState = "1";
+							toRunTCidList.addLast(i);
+						}
+						else
+							testCaseList.get(i).SelectState = "0";
+					
+						//更新测试例界面状态
+						tcViewList.get(i).setTextColor(Color.BLACK);
+						tcViewList.get(i).setText("waiting");
+					}
+					startButtonRunning = true;
+					startButton.setText("点击结束运行");
+					Log.v(TAG, "Click and running testcases now......");
+					runCaseManage();
+				}else{
+					startButtonRunning = false;
+					startButton.setText("开始运行");
+				}
+			}
+			
+		}
+
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView,
+				boolean isChecked) {
+			if (buttonView.getId() == R.id.selectAll){
+				if (isChecked){
+					for(int i=0;i<testCaseList.size();i++){
+						testCaseList.get(i).SelectState = "1";
+						tcCheckboxList.get(i).setChecked(isChecked);
+					}
+				}
+				else{
+					for(int i=0;i<testCaseList.size();i++){
+						testCaseList.get(i).SelectState = "0";
+						tcCheckboxList.get(i).setChecked(isChecked);
+					}
+				}
+			}
+			
+		}
+		
+	}
+	
+	
 }
 
 class TestcaseInfo

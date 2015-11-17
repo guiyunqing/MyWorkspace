@@ -49,10 +49,10 @@
             	android:text="@string/selectAll" />
 			    
 			<CheckBox
-			    android:id="@+id/deleteLog"
+			    android:id="@+id/reserveLog"
 			    android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
-            	android:text="@string/deleteLog" />			    
+            	android:text="@string/reserveLog" />			    
 			  			
 		</TableRow>
        
